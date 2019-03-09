@@ -1,0 +1,31 @@
+version: '3.1'
+
+services:
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  db:
+    build: ./backend/init_db/
+    ports:
+      - ${DB_PORT}:5432
+    env_file:
+      - ./.env
+  api:
+    build: ./backend/
+    ports:
+      - ${API_PORT}:5000
+    env_file:
+      - ./.env
+    command: "go run main.go"
+    depends_on:
+      - db
+    volumes:
+      - ./backend/:/go/src/API
+  front:
+    build: ./frontend/
+    ports:
+      - ${FRONT_PORT}:3000
+    command: "npm start"
+
