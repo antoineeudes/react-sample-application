@@ -20,3 +20,9 @@ Run the server with
 docker-compose up
 ```
 and browse http://localhost:3000/.
+
+# Uninstall
+Run 
+```
+docker-compose down
+```
