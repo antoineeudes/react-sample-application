@@ -27,5 +27,7 @@ services:
     build: ./frontend/
     ports:
       - ${FRONT_PORT}:3000
-    command: "npm start"
+    command: bash -c "npm start"
+    volumes:
+      - ./frontend:/usr/src/app
 

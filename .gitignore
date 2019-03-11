@@ -1,1 +1,4 @@
-API
+backend/API
+backend/init_db/
+backend/logfile
+.env

@@ -9,11 +9,14 @@ import (
 	"os"
 
 	"github.com/gorilla/handlers"
+	"github.com/rs/cors"
 )
 
 func main() {
 	router := router.InitializeRouter()
 	defer models.GetDB().Close()
 	router.Use(middleware.JwtAuthentication)
-	log.Fatal(http.ListenAndServe(":5000", handlers.LoggingHandler(os.Stdout, router)))
+	LoggingHandler := handlers.LoggingHandler(os.Stdout, router)
+	handler := cors.Default().Handler(LoggingHandler)
+	log.Fatal(http.ListenAndServe(":5000", handler))
 }
