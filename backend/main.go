@@ -18,5 +18,6 @@ func main() {
 	router.Use(middleware.JwtAuthentication)
 	LoggingHandler := handlers.LoggingHandler(os.Stdout, router)
 	handler := cors.Default().Handler(LoggingHandler)
+
 	log.Fatal(http.ListenAndServe(":5000", handler))
 }
