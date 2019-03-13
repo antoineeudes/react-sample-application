@@ -20,8 +20,8 @@ curl -X POST \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
   -d '{
-	"email": "user.email@domain.com",
-	"password": "secret"
+	"email": "your.email@example.com",
+	"password": "yoursecretpassword"
 }'
 ```
 Then, kill the container by pressing `Ctrl+C` or by running this command :
