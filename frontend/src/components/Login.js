@@ -4,9 +4,11 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import ReactDOM from 'react-dom';
 import apiBaseUrl from '../constants';
-import App from '../App';
 import { store } from '../store/configureStore';
 import UserInfo from '../store/userClass';
+import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom'
+
 
 class Login extends Component {
     constructor(props)  {
@@ -15,13 +17,6 @@ class Login extends Component {
             email:'',
             password:''
         };
-        console.log(store.getState());
-        ReactDOM.render(
-            <div>
-                <h1 className="display-4">Login to your account!</h1>
-                <p>You don't have an account yet? Then <a href="/">register</a>.</p>       
-            </div>,
-            document.getElementById("banner"));
     }
 
     handleChange(event) {
@@ -36,7 +31,6 @@ class Login extends Component {
             "email":this.state.email,
             "password":this.state.password
         };
-        console.log(payload)
         fetch(apiBaseUrl+'user/login', {
             method: 'POST',
             headers: {
@@ -49,29 +43,20 @@ class Login extends Component {
         .then(function (response) {
             console.log(response);
             var alertVariant = 'danger';
-            if (response.status===true) {
-                // alertVariant="success"
-                
-                ReactDOM.render(<App />, document.getElementById("root"));
+            if (response.status!==true) {
+                ReactDOM.render(
+                    <Alert variant={alertVariant}>
+                        {response["message"]}
+                    </Alert>, 
+                    document.getElementById("apimessage"));
+            } else {
+                const userInfo = new UserInfo();
+                userInfo.email = response.account.email;
+                userInfo.token = response.account.token;
+                const action = { type: "UPDATE_USERIDS", value: userInfo };
+                store.dispatch(action);
+                console.log(store.getState());
             }
-            ReactDOM.render(
-                <Alert variant={alertVariant}>
-                    {response["message"]}
-                </Alert>, 
-                document.getElementById("apimessage"));
-            console.log(response);
-            return response;
-        })
-        .then(function (response) {
-            const userInfo = new UserInfo();
-            userInfo.email = response.account.email;
-            userInfo.token = response.account.token;
-            const action = { type: "UPDATE_USERIDS", value: userInfo };
-            store.dispatch(action);
-            console.log(store.getState());
-        })
-        .then(function () {
-            ReactDOM.render(<App />, document.getElementById("root"));
         })
         .catch(function (error) {
             console.log(error);
@@ -79,8 +64,16 @@ class Login extends Component {
     }
 
     render() {
+        if (store.getState().userInfo.token !== '') {
+            return <Redirect to='/' />;
+        }
         return (
             <div>
+                <div id="banner" className="jumbotron">
+                    <h1 className="display-4">Login to your account!</h1>
+                    <hr />
+                    <p>You don't have an account yet? Then <Link to="/register">register</Link>.</p>
+                </div>
                 <Form onSubmit={(event) => this.handleSubmit(event)}>
                     <Form.Group controlId="formBasicEmail">
                         <Form.Label>Email address</Form.Label>

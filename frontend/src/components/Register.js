@@ -4,11 +4,9 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import ReactDOM from 'react-dom';
 import apiBaseUrl from '../constants';
-import Login from './Login';
 import { store } from '../store/configureStore';
-import App from '../App';
 import UserInfo from '../store/userClass';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 class Register extends Component {
     constructor(props)  {
@@ -17,16 +15,6 @@ class Register extends Component {
             email:'',
             password:''
         };
-        ReactDOM.render(
-            <Router>
-                <div>
-                    <h1 className="display-4">Register</h1>
-                    <p>You already have an account? Then <Link to="/login/">login</Link>.</p>
-                    <Route path="/login/" component={Login} />        
-                </div>
-            </Router>, 
-            document.getElementById("banner"));
-        ReactDOM.render(this.render(), document.getElementById("root"))
     }
 
     handleChange(event) {
@@ -45,16 +33,17 @@ class Register extends Component {
         fetch(apiBaseUrl+'user/new', {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache',
             },
             body: JSON.stringify(payload)
         })
         .then(response => response.json())
         .then(function (response) {
             console.log(response);
+            var message = response["message"];
             var alertVariant = 'danger';
+            var AlertBanner = <Alert variant={alertVariant}>{message}.</Alert>
             if (response.status===true) {
                 const userInfo = new UserInfo();
                 userInfo.email = response.account.email;
@@ -62,18 +51,15 @@ class Register extends Component {
                 const action = { type: "UPDATE_USERIDS", value: userInfo };
                 store.dispatch(action);
                 console.log(store.getState());
+                alertVariant = 'success';
+                AlertBanner = <Alert variant={alertVariant}>{message}, please <Alert.Link href="/login">login</Alert.Link>.</Alert>
                 // ReactDOM.render(<App />, document.getElementById("root"));
             }
             ReactDOM.render(
-                <Alert variant={alertVariant}>
-                    {response["message"]}
-                </Alert>, 
+                AlertBanner, 
                 document.getElementById("apimessage"));
             console.log(response);
             return response;
-        })
-        .then(function () {
-            ReactDOM.render(<App />, document.getElementById("root"));
         })
         .catch(function (error) {
             console.log(error);
@@ -83,6 +69,11 @@ class Register extends Component {
     render() {
         return (
             <div>
+                <div className="jumbotron">
+                    <h1 className="display-4">Register</h1>
+                    <hr /> 
+                    <p>You already have an account? Then <Link to="/login">login</Link>.</p>
+                </div>
                 <Form onSubmit={(event) => this.handleRegistrationSubmit(event)}>
                     <Form.Group controlId="formBasicRegistrationEmail">
                         <Form.Label>Email address</Form.Label>
